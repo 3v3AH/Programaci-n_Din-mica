@@ -33,3 +33,83 @@ capacidad_maxima = 140
 valor_optimo, objetos_optimos = knapsack(valor, peso, capacidad_maxima)
 print("Valor óptimo de la mochila:", valor_optimo)
 print("Objetos que debemos tomar:", objetos_optimos)
+
+
+
+
+
+def maximize_profit(length, prices):
+    # Creamos una lista para almacenar los precios máximos para cada longitud de cuerda
+    max_prices = [0] * (length + 1)
+    # Creamos una lista para almacenar la descomposición óptima
+    cuts = [0] * (length + 1)
+
+    for i in range(1, length + 1):
+        max_price = float('-inf')
+        for j in range(1, i + 1):
+            if prices[j - 1] + max_prices[i - j] > max_price:
+                max_price = prices[j - 1] + max_prices[i - j]
+                cuts[i] = j
+        max_prices[i] = max_price
+
+    return max_prices[length], cuts
+
+def optimal_cuts(length, cuts):
+    if length == 0:
+        return []
+    else:
+      #Llamada recursiva para obtener la descomposición óptima
+        return [cuts[length]] + optimal_cuts(length - cuts[length], cuts)
+
+length = 11
+prices = [1, 4, 10, 12, 15, 20, 21, 32, 31, 41, 51]
+
+#Lamanos a la función maximize_profit para optener el precio máximo y la descomposición óptima
+max_price, cuts = maximize_profit(length, prices)
+#Llamamos a la función optimal_cuts para obtener la lista de cortes óptimos
+optimal_cuts_list = optimal_cuts(length, cuts)
+
+print("Precio máximo:", max_price)
+print("Descomposición óptima:", optimal_cuts_list)
+
+
+
+
+
+def matrix_chain_order(p):
+    n = len(p) - 1  # número de matrices
+    m = [[0] * n for _ in range(n)]  # tabla para almacenar el número mínimo de multiplicaciones
+    s = [[0] * n for _ in range(n)]  # tabla para almacenar la posición de la separación óptima
+
+     #Calcula el número mínimo de multiplicaciones para todas las cadenas de matrices de diferentes longitudes
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            m[i][j] = float('inf')
+            #Encuentras la posición óptima para dividir la cadena en 2 subcadenas
+            for k in range(i, j):
+                q = m[i][k] + m[k + 1][j] + p[i] * p[k + 1] * p[j + 1]#Calcula el costo
+                if q < m[i][j]:#Si el costo calculado es menor que el costo actual
+                    m[i][j] = q#Actualiza el costo
+                    s[i][j] = k#Registra la posición óptima
+
+    return m, s
+
+def print_optimal_parens(s, i, j):
+    if i == j:
+        print("A" + str(i), end="")#Si solo hay una matriz, imprime su nombre
+    else:
+        print("(", end="")#Abre un paréntesis para la subexpresión
+        print_optimal_parens(s, i, s[i][j])#Imprime la subexpresión izquierda
+        print_optimal_parens(s, s[i][j] + 1, j)#Imprime la subexpresión derecha
+        print(")", end="")#Cierra el paréntesispara la subexpresión
+
+p = [5, 10, 3, 12, 5, 50, 6]#Dimensiones de las matrices
+
+m, s = matrix_chain_order(p)#Calcula el número mínimo de multiplicaciones y la posición óptima
+minimum_scalar_multiplications = m[0][-1]#Obtiene el numero minimo de multiplicaciones para la cadena completa
+
+print("Mínimo de multiplicaciones escalares:", minimum_scalar_multiplications)#Imprime el resultado
+print("Parentización óptima:", end=" ")
+print_optimal_parens(s, 0, len(p) - 2)#Imprime la parentización óptima
+print()#Imprimne una nueva linea
