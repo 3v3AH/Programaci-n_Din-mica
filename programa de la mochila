@@ -1,0 +1,35 @@
+def knapsack(valor, peso, capacidad_maxima):
+    n = len(valor)
+    # Creamos una matriz para almacenar los valores óptimos
+    dp = [[0] * (capacidad_maxima + 1) for _ in range(n + 1)]
+
+    # Llenamos la matriz iterativamente
+    for i in range(1, n + 1):
+        for w in range(capacidad_maxima + 1):
+            if peso[i - 1] > w:
+                dp[i][w] = dp[i - 1][w]
+            else:
+                dp[i][w] = max(dp[i - 1][w], valor[i - 1] + dp[i - 1][w - peso[i - 1]])
+
+    # Reconstruimos la lista de objetos incluidos en la mochila óptima
+    objetos_seleccionados = []
+    i, w = n, capacidad_maxima
+    while i > 0 and w > 0:
+        if dp[i][w] != dp[i - 1][w]:
+            objetos_seleccionados.append(i)
+            w -= peso[i - 1]
+        i -= 1
+
+    # Valor máximo alcanzado
+    valor_maximo = dp[n][capacidad_maxima]
+    return valor_maximo, objetos_seleccionados
+
+# Datos del problema
+valor = [79, 32, 47, 18, 26, 85, 33, 40, 45, 59]
+peso = [85, 26, 48, 21, 22, 95, 43, 45, 55, 52]
+capacidad_maxima = 140
+
+# Resolver el problema
+valor_optimo, objetos_optimos = knapsack(valor, peso, capacidad_maxima)
+print("Valor óptimo de la mochila:", valor_optimo)
+print("Objetos que debemos tomar:", objetos_optimos)
